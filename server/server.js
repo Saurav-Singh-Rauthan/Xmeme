@@ -1,4 +1,6 @@
 const express = require('express');
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUI = require('swagger-ui-express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
 
@@ -7,21 +9,61 @@ const {Memes} = require('./models/memes');
 const { ObjectID } = require('mongodb');
 const { request } = require('express');
 const app = express()
+
+const swaggerOptions ={
+    swaggerDefinition:{
+        info:{
+            title: 'A Memes api for fetching/posting/updating memes',
+            version: '1.0.0'
+        }
+    },
+    apis:['server.js'],
+}
+
+
+const swaggerDocs= swaggerJsDoc(swaggerOptions)
+console.log(swaggerDocs)
+app.use('/api-docs',swaggerUI.serve,swaggerUI.setup(swaggerDocs))
+
 const port = process.env.PORT || 3000
 
 app.use(bodyParser.json())
 
+ 
+/**
+ * @swagger
+ * /memes:
+ *   post:
+ *    description: Post a new meme
+ *    response:
+ *      200:
+ *       description: Success
+ */ 
 app.post('/memes', (req, res) => {
     var meme= new Memes({
         name:req.body.name,
         url:req.body.url,
-        caption:req.body.url
+        caption:req.body.caption
     })
 
-    meme.save().then((doc) => {
-        res.send(doc)
-    },(err) => {
-        res.status(400).send(err)
+    Memes.findOne({
+        "name": req.body.name,
+        "url":req.body.url,
+        "caption":req.body.caption
+    })
+    .then((result) => {
+        if(result){
+            return res.status(409).send()
+        }
+
+        meme.save().then((doc) => {
+            res.send(doc)
+        },(err) => {
+            res.status(400).send(err)
+        })
+    })
+    .catch((err) => {
+        res.status(404).send()
     })
 });
 
@@ -85,7 +127,7 @@ app.patch("/memes/:id", (req, res) => {
     })
 });
 
-app.listen(port, () => console.log(`Example app listening on port port!`))
+app.listen(port, () => console.log(`Example app listening on port %{port}!`))
 
 module.exports ={
     app
