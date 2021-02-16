@@ -14,12 +14,13 @@ const app = express()
 
 const port = process.env.PORT || 8081
 
-app.use(cors())
+app.use((req, res, next) =>{
+    res.setHeader("Access-Control-Allow-Origin","*");
+    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,HEAD");
+    next();
+  });
 
-// cors
-app.use((req,res,next) => {
-    res.setHeader("Access-Control-Allow-Origin")
-})
  
 app.post('/memes', (req, res) => {
     var meme= new Memes({
@@ -50,7 +51,7 @@ app.post('/memes', (req, res) => {
 });
 
 
-app.get("/memes", (req, res) => {
+app.get("/memes", (req, res,next) => {
     var mysort={_id:-1}
     Memes.find()
     .sort(mysort)
