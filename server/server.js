@@ -11,19 +11,6 @@ const { ObjectID } = require('mongodb');
 const { request } = require('express');
 const app = express()
 
-const swaggerOptions ={
-    swaggerDefinition:{
-        info:{
-            title: 'A Memes api for fetching/posting/updating memes',
-            version: '1.0.0'
-        }
-    },
-    apis:['server.js'],
-}
-
-swaggerDocument = require('./swagger.json');
-
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 const port = process.env.PORT || 8081
 
@@ -122,7 +109,7 @@ app.patch("/memes/:id", (req, res) => {
     })
 });
 
-app.listen(port, () => console.log(`Example app listening on port %{port}!`))
+app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
 module.exports ={
     app
