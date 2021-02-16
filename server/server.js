@@ -3,6 +3,7 @@ const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
+const cors = require('cors');
 
 const {mongoose} = require('./db/mongoose');
 const {Memes} = require('./models/memes');
@@ -20,25 +21,19 @@ const swaggerOptions ={
     apis:['server.js'],
 }
 
+swaggerDocument = require('./swagger.json');
 
-const swaggerDocs= swaggerJsDoc(swaggerOptions)
-console.log(swaggerDocs)
-app.use('/api-docs',swaggerUI.serve,swaggerUI.setup(swaggerDocs))
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 8081
 
-app.use(bodyParser.json())
+app.use(cors())
 
+// cors
+app.use((req,res,next) => {
+    res.setHeader("Access-Control-Allow-Origin")
+})
  
-/**
- * @swagger
- * /memes:
- *   post:
- *    description: Post a new meme
- *    response:
- *      200:
- *       description: Success
- */ 
 app.post('/memes', (req, res) => {
     var meme= new Memes({
         name:req.body.name,
